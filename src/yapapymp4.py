@@ -157,7 +157,9 @@ class MP4Atom:
       if type(bytes_or_path_string) == str:
         with open(bytes_or_path_string,'rb') as f:
           data = f.read(head_chunk_max_size)
-          
+      else:
+        data = bytes_or_path_string
+        
       atom = MP4Atom(data, 
                     is_root = True,
                     check_offsets_avail = check_offsets_avail)
