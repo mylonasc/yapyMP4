@@ -4,4 +4,3 @@ from .mp4reader import MP4Atom , MP4Data
 from .version import __version__ # created during deployment.
 
 import os
-__version__=os.environ['YAPY_MP4_VERSION']
