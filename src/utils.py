@@ -10,6 +10,7 @@
 #  
 def _b2i(b):
     return int.from_bytes(b, byteorder='big',signed=False)
+
 def _b2s(b):
     return str(b,encoding='utf-8')
 
@@ -74,14 +75,23 @@ def _parse_common_header_structure(dat_with_header) -> dict:
     res['atomsize'] = _b2i(dat_with_header[0:4])
     res['atomtype'] = _b2s(dat_with_header[4:8])
     res['version_byte'] = dat_with_header[8]
-    res['flags_bytes'] = dat_with_header[8:12]
+    res['flags_bytes'] = dat_with_header[9:12]
     return res
 
+def _parse_mdhd(mdhd_dat, _ch_dict):
+    _ch_dict['description'] = 'Header of a mdia Atom'
+    _ch_dict['creat_utc_time']  = _b2i(mdhd_dat[12:16])
+    _ch_dict['modif_utc_time']  = _b2i(mdhd_dat[16:20])
+    _ch_dict['time_scale']      = _b2i(mdhd_dat[20:24])
+    _ch_dict['duration']        = _b2i(mdhd_dat[24:28])
+    _ch_dict['language']        =      mdhd_dat[28:30]
+    _ch_dict['predefined']      =      mdhd_dat[30:32]
+    return _ch_dict
 
 def _parse_tkhd(tkhd_dat, _ch_dict):
     _ch_dict['description'] = 'Header of the track Atom'
-    _ch_dict['creat_utc_time'] = _b2i(tkhd_dat[12:16])
-    _ch_dict['modif_utc_time']      = _b2i(tkhd_dat[16:20])
+    _ch_dict['creat_utc_time']    = _b2i(tkhd_dat[12:16])
+    _ch_dict['modif_utc_time']    = _b2i(tkhd_dat[16:20])
     _ch_dict['track_id']          = _b2i(tkhd_dat[20:24])
     _ch_dict['reserved']          =      tkhd_dat[24:28]
     _ch_dict['duration']          = _b2i(tkhd_dat[28:32])
@@ -152,7 +162,7 @@ def _read_sample_description_stsd(sample_table):
 def _read_sample_description_stts(time_to_sample_table):
     res = {
         'sample_duration' :  _b2i(time_to_sample_table[0:4]),
-        'sample_count' :  time_to_sample_table[4:8]
+        'sample_count' :  _b2i(time_to_sample_table[4:8])
     }
     return res
 
@@ -173,7 +183,8 @@ def _read_stco_table(table_dat):
 special_parsers = {
     'stsz' : _parse_stsz,
     'tkhd' : _parse_tkhd,
-    'mvhd' : _parse_mvhd
+    'mvhd' : _parse_mvhd,
+    'mdhd' : _parse_mdhd
 }
 
 def _read_table_or_header_data(data, offset):

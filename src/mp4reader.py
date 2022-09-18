@@ -2,7 +2,6 @@ from .utils import _b2i, _b2s
 from .utils import _read_table_or_header_data, _read_atoms_from_mp4
 from typing import List, Union
 
-
 NOT_IMPLEMENTED_PARSERS = set( ('dref',))
 
 _MAX_LIST_PRINT = 10
@@ -13,7 +12,7 @@ def _trunc_print(v) -> str:
     return str(v)
   if type(v) == list:
     if len(v) > _MAX_LIST_PRINT:
-      list_string = "[%i,...,%i]"%(v[0], v[-1])
+      list_string = "[%s,...,%s]"%(str(v[0]), str(v[-1]))
     else:
       list_string = '[' + ",".join(map(str, v)) +']'
 
@@ -24,6 +23,7 @@ def _trunc_print(v) -> str:
 class MP4Data:
   def __init__(self, data, offs):
     self._parsed = _read_table_or_header_data(data, offs)
+    self._offs_start = offs
 
   def get_parsed_data(self):
     return self._parsed
@@ -36,6 +36,9 @@ class MP4Data:
         continue
       s += "  %s : %s \n"%(k,_trunc_print(v))
     return s
+
+  def __getitem__(self, i):
+    return self._parsed[i]
 
 class NoData(MP4Data):
   def __init__(self, *args, **kwargs):
@@ -55,9 +58,9 @@ class NoData(MP4Data):
 #   'mvhd' : MP4Data,
 #   'stco' : MP4Data
 # }
-_table_and_header_classes = set(['stts','stsd','stsc','stsz','tkhd','mvhd','stco'])
+_TABLE_AND_HEADER_CLASSES = set(['stts','stsd','stsc','stsz','tkhd','mvhd','mdhd','stco'])
 def _header_or_data_object_factory(atomtype):
-    if atomtype in _table_and_header_classes:
+    if atomtype in _TABLE_AND_HEADER_CLASSES:
         return MP4Data
     else:
         return NoData
@@ -137,7 +140,11 @@ class MP4Atom:
         self.get_children()
     
     @staticmethod
-    def init_from_chunk(bytes_or_path_string : Union[bytes,str], head_chunk_max_size = 50000, check_offsets_avail= False):
+    def init_from_chunk(
+            bytes_or_path_string : Union[bytes,str],
+            head_chunk_max_size = 50000, 
+            check_offsets_avail= False
+      ):
       """ Factory method - create a parser either for a file or a set of bytes in memory
 
       Note that "chunk" in the name of this function is not related to the technical 
