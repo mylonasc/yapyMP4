@@ -1,4 +1,5 @@
 # yapyMP4
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mylonasc/yapyMP4/blob/main/mp4reader_demo.ipynb)
 
 ## Why another one?
 
@@ -17,4 +18,3 @@ from src.ypapymp4 import MP4Atom
 # This will throw an error if the class does not find all the expected root nodes if check_offsets_avail is set to true 
 root = MP4Atom.init_from_chunk('test.mp4', head_chunk_max_size = 200000,check_offsets_avail = False)
 ```
-
