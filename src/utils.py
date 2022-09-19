@@ -208,6 +208,7 @@ def _read_table_or_header_data(data, offset):
         res['description'] = 'Sample description Atom'
         res['table_data'] = _read_sample_description_stsd(table_dat)
     if res['atomtype'] == 'stts':
+        res['description'] = 'Sample-to-time table data.'
         res['table_data'] = _read_sample_description_stts(table_dat)
     if res['atomtype'] == 'stsc':
         res['table_columns'] = ['first_chunk','sample_per_chunk','sample_description_id']
